@@ -1,38 +1,41 @@
-name: LogRDP
+name: Cloudwindows
 
 on: workflow_dispatch
 
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 9999
 
     steps:
     - name: Mendownload Ngrok.
       run: |
         Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
-        Invoke-WebRequest https://raw.githubusercontent.com/logcitra/LOGRDP/main/start.bat -OutFile start.bat
-        Invoke-WebRequest https://raw.githubusercontent.com/logcitra/LOGRDP/main/wallpaper.png -OutFile wallpaper.png
-        Invoke-WebRequest https://raw.githubusercontent.com/logcitra/LOGRDP/main/wallpaper.bat -OutFile wallpaper.bat
-    - name: Extracting Ngrok.
+        Invoke-WebRequest https://raw.githubusercontent.com/NIndo123/GoogleCloud-RDP/main/start.bat -OutFile start.bat
+        Invoke-WebRequest https://raw.githubusercontent.com/NIndo123/GoogleCloud-RDP/main/wallpaper.png -OutFile wallpaper.bmp
+        Invoke-WebRequest https://raw.githubusercontent.com/NIndo123/GoogleCloud-RDP/main/wallpaper.bat -OutFile wallpaper.bat
+        Invoke-WebRequest https://raw.githubusercontent.com/NIndo123/GoogleCloud-RDP/main/loop.bat -OutFile loop.bat
+    - name: Mendownload Launcher.
+      run: |
+        Invoke-WebRequest https://raw.githubusercontent.com/NIndo123/GoogleCloud-RDP/main/launcher/Node.js.lnk -OutFile Node.js.lnk
+    - name: Mengextract Ngrok File.
       run: Expand-Archive ngrok.zip
-    - name: Connecting Ngrok.
+    - name: Connect Ke Akun Ngrok.
       run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
       env:
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Activation Access.
+    - name: Mengaktifkan Akses RDP.
       run: | 
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
-        copy wallpaper.png D:\a\wallpaper.png
+        copy wallpaper.bmp D:\a\wallpaper.bmp
         copy wallpaper.bat D:\a\wallpaper.bat
-    - name: Creating Tunnel.
-      run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp 3389"'
-    - name: Processing.
+        copy Node.js.lnk C:\Users\Public\Desktop\Node.js.lnk
+    - name: Membuat Tunnel.
+      run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp --region ap 3389"'
+    - name: Connect Ke RDP Kamu CPU 2 Core - 7GB Ram - 255 SSD.
       run: cmd /c start.bat
-    - name: Sucess! Anda Bisa Tutup Tabnya sekarang.
-      run: | 
-        Invoke-WebRequest https://github.com/logcitra/LOGRDP/raw/main/loop.ps1 -OutFile loop.ps1
-        ./loop.ps1
+    - name: Berhasil Dibuat! Anda Bisa Menutup Tab Sekarang.
+      run: cmd /c loop.bat
