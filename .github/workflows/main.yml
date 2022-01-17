@@ -1,22 +1,68 @@
-name: mac
-on: 
-  workflow_dispatch:
-defaults:
-  run:
-    shell: bash
+
+name: Quang2107
+
+on: workflow_dispatch
 
 jobs:
+
   build:
-    runs-on: macos-12
+
+    runs-on: windows-latest
+
+    timeout-day: 30
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Setting the environment up.
+
+    - name: Đang Tải NGROK!
+
+      run: |
+
+        Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/start.bat -OutFile start.bat
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/wallpaper.png -OutFile wallpaper.png
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/wallpaper.bat -OutFile wallpaper.bat
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/loop.bat -OutFile loop.bat
+
+    - name: Đang Tải Launcher!
+
+      run: |
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/launcher/kiemthanh.exe -OutFile kiemthanh.exe
+
+    - name: Đang Giải Nén Ngrok File...
+
+      run: Expand-Archive ngrok.zip
+
+    - name: Đang Kết Nối Đến Ngrok!
+
+      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+
       env:
+
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-        VNC_USER_PASSWORD: ${{ secrets.VNC_USER_PASSWORD }
-        VNC_PASSWORD: ${{ secrets.VNC_PASSWORD }}
-      run: source configure.sh "$VNC_USER_PASSWORD" "$VNC_PASSWORD" "$NGROK_AUTH_TOKEN"
-    - name: ngrok is now listening to VNC connections on...
-      run: curl --silent http://127.0.0.1:4040/api/tunnels | jq '.tunnels[0].public_url'
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v2
+
+    - name: Đang Xác Thực..
+
+      run: | 
+
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+
+    - name: Đang Bật...
+
+      run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp --region ap 3389"'
+
+    - name: Đang Kết Nối Đến Máy Chủ...
+
+      run: cmd /c start.bat
+
+    - name: Đã Tạo VPS Thành Công!
+
+      run: cmd /c loop.bat
