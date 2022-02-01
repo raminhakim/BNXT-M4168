@@ -1,0 +1,49 @@
+# ------------------------------------ #
+#       Made By Anli V.1.0.0           #
+# ------------------------------------ #
+name: My Python Application
+# ------------------------------------ #
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+# ------------------------------------ #
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.8, 3.7, 3.6, 3.5]
+    steps:
+# ------------------------------------ #
+    - name: Checkout Code
+      uses: actions/checkout@v2
+# ------------------------------------ #
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+# ------------------------------------ #
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y unzip openjdk-8-jre-headless xvfb libxi6 libgconf-2-4
+# ------------------------------------ #
+    - name: Download Chrome Driver
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -y install google-chrome-stable
+        wget -N https://chromedriver.storage.googleapis.com/92.0.4515.107/chromedriver_linux64.zip -P ~/
+        unzip ~/chromedriver_linux64.zip -d ~/
+        rm ~/chromedriver_linux64.zip
+        sudo mv -f ~/chromedriver /usr/local/bin/chromedriver
+        sudo chown root:root /usr/local/bin/chromedriver
+        sudo chmod 0755 /usr/local/bin/chromedriver
+        pip install selenium
+# ------------------------------------ #
+    - name: Mulai Enjoy
+      run: |
+        python3 kesatu.py
+# ------------------------------------ #
